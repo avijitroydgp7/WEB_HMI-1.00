@@ -1,0 +1,318 @@
+/* --- Global Styles --- */
+:root {
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --bg-color: #1e1e1e;
+  --panel-bg: #252526;
+  --border-color: #333333;
+  --text-color: #cccccc;
+  --text-color-darker: #888888;
+  --accent-color: #007acc;
+  --hover-bg: #333333;
+  --menu-bg: #2d2d2d;
+  --menu-shadow: rgba(0, 0, 0, 0.5);
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-size: 13px;
+  overflow: hidden; /* Prevent body scrollbars */
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+}
+
+/* --- Main IDE Layout --- */
+.ide-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.ide-body {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  min-height: 0; /* Important for flex children to shrink */
+}
+
+.ide-main-content {
+  flex-grow: 1;
+  position: relative; /* Required for FlexLayout */
+}
+
+
+/* --- Material Icons --- */
+.material-icons {
+  font-size: 16px;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+
+/* --- Menu Bar --- */
+.menu-bar {
+  display: flex;
+  background-color: var(--panel-bg);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0 4px;
+  height: 30px;
+  align-items: center;
+}
+
+.menu-bar-item {
+  padding: 4px 8px;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+}
+
+.menu-bar-item:hover {
+  background-color: var(--accent-color);
+}
+
+/* --- Dropdown Menus --- */
+.menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: var(--menu-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 8px var(--menu-shadow);
+  padding: 4px 0;
+  z-index: 1000;
+  min-width: 250px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.menu-item:hover {
+  background-color: var(--accent-color);
+}
+
+.menu-item .shortcut {
+  margin-left: auto;
+  padding-left: 20px;
+  color: var(--text-color-darker);
+}
+
+.menu-separator {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 4px 0;
+}
+
+/* Submenus */
+.menu-item-submenu {
+  position: relative;
+}
+.menu-item-submenu::after {
+  content: '▶';
+  position: absolute;
+  right: 8px;
+  font-size: 10px;
+}
+
+.submenu-dropdown {
+  top: -5px; /* Adjust vertical alignment */
+  left: 100%;
+}
+
+/* Checkable Menu Item */
+.menu-item .material-icons.check-icon {
+    font-size: 18px; /* Make checkbox bigger */
+    width: 20px;
+    height: 20px;
+    margin-right: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* --- Toolbar --- */
+.toolbar {
+  display: flex;
+  align-items: center;
+  background-color: var(--panel-bg);
+  padding: 4px;
+  border-bottom: 1px solid var(--border-color);
+  height: 32px;
+}
+
+.toolbar-group {
+  display: flex;
+  border-right: 1px solid var(--border-color);
+  margin-right: 8px;
+  padding-right: 8px;
+}
+
+.toolbar-button {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--text-color);
+  padding: 4px;
+  margin: 0 2px;
+  cursor: pointer;
+}
+
+.toolbar-button:hover {
+  background-color: var(--hover-bg);
+  border-color: var(--accent-color);
+}
+
+.toolbar-button .material-icons {
+  font-size: 20px;
+  margin: 0;
+}
+
+
+/* --- Drawing Toolbar --- */
+.drawing-toolbar {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--panel-bg);
+  padding: 4px;
+  border-right: 1px solid var(--border-color);
+}
+
+.drawing-item {
+  padding: 8px;
+  cursor: grab;
+  text-align: center;
+}
+
+.drawing-item:hover {
+  background-color: var(--accent-color);
+}
+
+.drawing-item .material-icons {
+  font-size: 24px;
+  margin: 0;
+}
+
+
+/* --- Status Bar --- */
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--panel-bg);
+  border-top: 1px solid var(--border-color);
+  padding: 0 8px;
+  height: 25px;
+  font-size: 12px;
+}
+
+.status-bar > div {
+  display: flex;
+  gap: 16px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+}
+
+
+/* --- Docking Panels (Docks) --- */
+.dock-item-content {
+  padding: 8px;
+  overflow: auto;
+  height: 100%; /* Ensure content can scroll */
+  box-sizing: border-box;
+}
+
+.tree-view {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.tree-item {
+  padding-left: 20px;
+  position: relative;
+}
+
+.tree-item .material-icons {
+  font-size: 16px;
+  margin-right: 4px;
+}
+
+/* Properties Panel */
+.properties-panel-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.property-item {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.property-item label {
+  white-space: nowrap;
+}
+
+.property-item input {
+  width: 100%;
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 4px;
+  box-sizing: border-box;
+}
+
+
+/* --- Canvas --- */
+.canvas {
+  flex-grow: 1;
+  position: relative;
+  background-color: #3a3a3a;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+  overflow: hidden;
+  height: 100%;
+}
+
+
+/* --- HMI Components on Canvas --- */
+.hmi-component {
+  position: absolute;
+  cursor: move;
+  border: 1px dashed transparent;
+}
+
+.hmi-component.selected {
+  border-color: var(--accent-color);
+  z-index: 10;
+}
+
+.hmi-button {
+  background-color: #555;
+  color: white;
+  border: 1px solid #777;
+}
+
+.hmi-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

@@ -1,0 +1,62 @@
+/* Override FlexLayout default styles to match our theme */
+
+.flexlayout__layout {
+    --color-background: var(--bg-color);
+    --color-base: var(--text-color);
+    --color-border: var(--border-color);
+    --color-drag-rect: var(--accent-color);
+    --color-tab-selected-background: var(--panel-bg);
+    --color-tab-selected-color: var(--text-color);
+    --color-tab-unselected-background: var(--bg-color);
+    --color-tab-unselected-color: var(--text-color-darker);
+    --color-tab-hover-background: var(--hover-bg);
+    --color-tab-hover-color: var(--text-color);
+    --color-tab-textbox-color: var(--text-color);
+    --color-splitter: var(--border-color);
+    --color-splitter-hover: var(--accent-color);
+    --color-splitter-drag: var(--accent-color);
+    --color-tabset-header-background: var(--bg-color);
+    --color-tabset-background: var(--panel-bg);
+    --color-tab-border-selected: var(--accent-color);
+    --color-tab-border-unselected: transparent;
+}
+
+.flexlayout__tabset {
+    background-color: var(--color-tabset-background);
+}
+
+.flexlayout__tabset_header {
+    background-color: var(--color-tabset-header-background);
+}
+
+.flexlayout__tab_button {
+    border-bottom: 2px solid var(--color-tab-border-unselected);
+}
+
+.flexlayout__tab_button--selected {
+    background-color: var(--color-tab-selected-background);
+    color: var(--color-tab-selected-color);
+    border-bottom: 2px solid var(--color-tab-border-selected);
+}
+
+.flexlayout__tab_button--unselected {
+    background-color: var(--color-tab-unselected-background);
+    color: var(--color-tab-unselected-color);
+}
+
+.flexlayout__tab_button:hover {
+    background-color: var(--color-tab-hover-background);
+    color: var(--color-tab-hover-color);
+}
+
+.flexlayout__splitter {
+    background-color: var(--color-splitter);
+}
+
+.flexlayout__splitter:hover {
+    background-color: var(--color-splitter-hover);
+}
+
+.flexlayout__splitter_drag {
+    background-color: var(--color-splitter-drag);
+}
