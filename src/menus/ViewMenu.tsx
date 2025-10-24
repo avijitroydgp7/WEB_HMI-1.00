@@ -24,17 +24,34 @@ const CheckableItem: React.FC<{
 
 export const ViewMenu: React.FC<ViewMenuProps> = ({ model, onToggleDock }) => {
     const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null);
+    const [dockStates, setDockStates] = useState<Record<DockName, boolean>>({});
 
-    // This is a simple way to check visibility. A more robust solution might use node IDs.
-    const isDockVisible = (dockName: DockName) => {
-        let isVisible = false;
-        model.visitNodes(node => {
-            // Fix: Cast node to TabNode to safely access getName().
-            if (node.getType() === 'tab' && (node as TabNode).getName() === dockName) {
-                isVisible = true;
+    // Initialize dock states on mount
+    React.useEffect(() => {
+        const initialStates: Record<DockName, boolean> = {};
+        const dockingItems: DockName[] = [
+            "Project Tree", "Screen Tree", "System Tree", "Tag Search", "Data Browser",
+            "Property Tree", "IP Address", "Library", "Controller List", "Data View", "Screen Image List"
+        ];
+        
+        dockingItems.forEach(dock => {
+            try {
+                const node = model.getNodeById(dock);
+                initialStates[dock] = node !== null;
+            } catch {
+                initialStates[dock] = false;
             }
         });
-        return isVisible;
+        
+        setDockStates(initialStates);
+    }, [model]);
+
+    const handleDockToggle = (dockName: DockName) => {
+        setDockStates(prev => ({
+            ...prev,
+            [dockName]: !prev[dockName]
+        }));
+        onToggleDock(dockName);
     };
 
     const dockingItems: DockName[] = [
@@ -69,8 +86,8 @@ export const ViewMenu: React.FC<ViewMenuProps> = ({ model, onToggleDock }) => {
                                     <CheckableItem
                                         key={name}
                                         name={name}
-                                        checked={isDockVisible(name as DockName)}
-                                        onClick={() => onToggleDock(name as DockName)}
+                                        checked={dockStates[name as DockName] || false}
+                                        onClick={() => handleDockToggle(name as DockName)}
                                     />
                                 ))}
                             </div>

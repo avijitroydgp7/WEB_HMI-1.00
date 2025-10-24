@@ -1,0 +1,190 @@
+
+
+
+import React, { useState, useRef, createContext, useMemo, useCallback } from 'react';
+import { Layout, Model, TabNode, Actions, IJsonModel } from 'flexlayout-react';
+import type { HmiComponent, DockName } from '../types/hmi';
+
+import { MenuBar } from './MenuBar';
+import { Toolbar } from './Toolbar';
+import { DrawingToolbar } from './DrawingToolbar';
+import { StatusBar } from './StatusBar';
+import { Canvas } from './Canvas';
+
+// Docks
+import { ProjectTreeDock } from '../docks/ProjectTreeDock';
+import { ScreenTreeDock } from '../docks/ScreenTreeDock';
+import { SystemTreeDock } from '../docks/SystemTreeDock';
+import { PropertyTreeDock } from '../docks/PropertyTreeDock';
+import { LibraryDock } from '../docks/LibraryDock';
+import { ScreenImageListDock } from '../docks/ScreenImageListDock';
+import { TagSearchDock } from '../docks/TagSearchDock';
+import { DataBrowserDock } from '../docks/DataBrowserDock';
+import { IPAddressDock } from '../docks/IPAddressDock';
+import { ControllerListDock } from '../docks/ControllerListDock';
+import { DataViewDock } from '../docks/DataViewDock';
+
+// --- Shared State Context ---
+interface SharedState {
+    components: HmiComponent[];
+    setComponents: React.Dispatch<React.SetStateAction<HmiComponent[]>>;
+    selectedComponent: HmiComponent | null;
+    setSelectedComponentId: (id: string | null) => void;
+}
+export const SharedStateContext = createContext<SharedState | null>(null);
+
+
+// --- Main App Component ---
+export const App: React.FC = () => {
+    const [components, setComponents] = useState<HmiComponent[]>([]);
+    const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
+    const [coords, setCoords] = useState({ x: 0, y: 0 });
+    const layoutRef = useRef<Layout>(null);
+    const [dockStates, setDockStates] = useState<Record<DockName, boolean>>({
+        "Project Tree": true,
+        "Screen Tree": true,
+        "System Tree": true,
+        "Property Tree": true,
+        "Library": true,
+        "Screen Image List": true,
+        "Tag Search": true,
+        "Data Browser": true,
+        "IP Address": true,
+        "Controller List": true,
+        "Data View": true
+    });
+
+    const initialModel: any = Model.fromJson({
+        global: { },
+        borders: [
+            {
+                type: "border",
+                location: "left",
+                size: 250,
+                children: [
+                    { type: "tab", name: "Project Tree", component: "Project Tree" },
+                    { type: "tab", name: "Screen Tree", component: "Screen Tree" },
+                    { type: "tab", name: "System Tree", component: "System Tree" }
+                ]
+            },
+            {
+                type: "border",
+                location: "right",
+                size: 250,
+                children: [
+                    { type: "tab", name: "Property Tree", component: "Property Tree" },
+                    { type: "tab", name: "Library", component: "Library" },
+                    { type: "tab", name: "Screen Image List", component: "Screen Image List" }
+                ]
+            },
+            {
+                type: "border",
+                location: "bottom",
+                size: 200,
+                children: [
+                    { type: "tab", name: "Tag Search", component: "Tag Search" },
+                    { type: "tab", name: "Data Browser", component: "Data Browser" },
+                    { type: "tab", name: "IP Address", component: "IP Address" },
+                    { type: "tab", name: "Controller List", component: "Controller List" },
+                    { type: "tab", name: "Data View", component: "Data View" }
+                ]
+            }
+        ],
+        layout: {
+            type: "row",
+            children: [
+                {
+                    type: "tabset",
+                    id: "main",
+                    children: [
+                        { type: "tab", name: "Canvas", component: "canvas" }
+                    ]
+                }
+            ]
+        }
+    });
+    
+    const [model, setModel] = useState<Model>(initialModel);
+
+    const factory = (node: TabNode) => {
+        const component = node.getComponent();
+        switch (component) {
+            case 'canvas': return <Canvas setCoords={setCoords} />;
+            case 'Project Tree': return <ProjectTreeDock />;
+            case 'Screen Tree': return <ScreenTreeDock />;
+            case 'System Tree': return <SystemTreeDock />;
+            case 'Property Tree': return <PropertyTreeDock />;
+            case 'Library': return <LibraryDock />;
+            case 'Screen Image List': return <ScreenImageListDock />;
+            case 'Tag Search': return <TagSearchDock />;
+            case 'Data Browser': return <DataBrowserDock />;
+            case 'IP Address': return <IPAddressDock />;
+            case 'Controller List': return <ControllerListDock />;
+            case 'Data View': return <DataViewDock />;
+            default: return <div>Unknown component: {component}</div>;
+        }
+    };
+
+    // Fix: Updated onToggleDock to use the current flexlayout-react API.
+    // Actions should be performed on the model, not the layout component.
+    const onToggleDock = (dockName: DockName) => {
+        const nodeExists = model.getNodeById(dockName) !== null;
+
+        if (nodeExists) {
+            model.doAction(Actions.deleteTab(dockName));
+        } else {
+            const dockConfig = getDockConfig(dockName);
+            try {
+                model.doAction(Actions.addNode(
+                    { type: 'tab', name: dockName, component: dockName },
+                    dockConfig.target,
+                    dockConfig.location as any,
+                    0
+                ));
+            } catch (error) {
+                console.error('Error adding dock:', error);
+                // Revert the dock state if addition fails
+                setDockStates(prev => ({ ...prev, [dockName]: !prev[dockName] }));
+            }
+                { type: 'tab', name: dockName, component: dockName },
+                dockConfig.target,
+                dockConfig.location as any, // Using 'as any' for simplicity, 'self' is a valid DockLocation.
+                0
+            ));
+        }
+    };
+    
+    const getDockConfig = (dockName: DockName) => {
+        const leftDocks: DockName[] = ["Project Tree", "Screen Tree", "System Tree"];
+        const rightDocks: DockName[] = ["Property Tree", "Library", "Screen Image List"];
+        const bottomDocks: DockName[] = ["Tag Search", "Data Browser", "IP Address", "Controller List", "Data View"];
+
+        if (leftDocks.includes(dockName)) return { target: "border_left", location: "self" };
+        if (rightDocks.includes(dockName)) return { target: "border_right", location: "self" };
+        if (bottomDocks.includes(dockName)) return { target: "border_bottom", location: "self" };
+        return { target: "border_bottom", location: "self" }; // Default to bottom
+    };
+    
+    const sharedStateValue = useMemo(() => ({
+        components,
+        setComponents,
+        selectedComponent: components.find(c => c.id === selectedComponentId) ?? null,
+        setSelectedComponentId
+    }), [components, selectedComponentId]);
+
+    return (
+        <SharedStateContext.Provider value={sharedStateValue}>
+            <div className="ide-container">
+                <MenuBar model={model} onToggleDock={onToggleDock} />
+                <Toolbar />
+                <div className="ide-body">
+                    <DrawingToolbar />
+                    <div className="ide-main-content">
+                         <Layout ref={layoutRef} model={model} factory={factory} />
+                    </div>
+                </div>
+                <StatusBar coords={coords} />
+            </div>
+        </SharedStateContext.Provider>
+    );
+};
